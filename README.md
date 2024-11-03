@@ -33,3 +33,14 @@ pip install qiskit-machine-learning
 ```
 pip install -U scikit-learn
 ```
+
+**All Together**
+**Install and Set Up Qiskit**
+
+```
+pip install qiskit
+pip install qiskit-ibm-runtime
+pip install qiskit-algorithms
+pip install qiskit-machine-learning
+pip install -U scikit-learn
+```
