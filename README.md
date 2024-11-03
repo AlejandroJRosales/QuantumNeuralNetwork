@@ -1,5 +1,9 @@
 # Quantum Neural Network
 
+Feel free to read about related quantum convolutional neural networks on my website here: https://www.contextswitching.org/tcs/quantumcnn/
+
+Also, you can read an introduction to quantum computing theory on my website here: https://www.contextswitching.org/tcs/quantumcomputingtheory/
+
 ## Installation
 
 ### Running IBM Quantum Experience Locally
