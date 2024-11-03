@@ -2,13 +2,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 # dataset libs
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit_machine_learning.datasets import ad_hoc_data
+from qiskit import QuantumCircuit
+from qiskit.circuit import ParameterVector
 # add qml libs here
+from qiskit_machine_learning.neural_networks import SamplerQNN
 
 
 class QNN:
-    def __init__(self, data):
+    def __init__(self, data=None) -> None:
         self.data = data
+        # set inputs and weights
+        self.inputs = data.inputs
+        self.weights = data.weights
+
+        # init quantum circut
+        self.qc = QuantumCircuit(2)
+        self.set_circut()
+
+        sampler_qnn = SamplerQNN(circuit=self.qc, input_params=self.inputs, weight_params=self.weights)
+
+
+    def set_circut(self):
+        self.qc.ry(self.inputs[0], 0)
+        self.qc.ry(self.inputs[1], 1)
+        self.qc.cx(0, 1)
+        self.qc.ry(self.weights[0], 0)
+        self.qc.ry(self.weights[1], 1)
+        self.qc.cx(0, 1)
+        self.qc.ry(self.weights[2], 0)
+        self.qc.ry(self.weights[3], 1)
 
 
 class Data:
@@ -16,17 +38,12 @@ class Data:
         # initialize seed for reproducibility
         algorithm_globals.random_seed = 12345
 
-        # initalize training and testing data
-        self.adhoc_dimension = 2
-        self.train_features, self.train_labels, self.test_features, self.test_labels, self.adhoc_total = ad_hoc_data(
-            training_size=20,
-            test_size=5,
-            n=self.adhoc_dimension,
-            gap=0.3,
-            plot_data=False,
-            one_hot=False,
-            include_sample_total=True,
-        )
+        self.inputs = ParameterVector("input", 2)
+        self.weights = ParameterVector("weight", 4)
+
+
+data = Data()
+qnn = QNN(data=data)
 
 # This code is part of Qiskit.
 #
