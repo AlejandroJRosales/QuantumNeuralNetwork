@@ -9,22 +9,37 @@ from qiskit_machine_learning.neural_networks import SamplerQNN
 
 
 class QNN:
-    def __init__(self, data=None, qc=None) -> None:
+    def __init__(self, data=None) -> None:
         self.data = data
-        self.qc = qc
+        self.weight_dim = 4
+        self.circut_input = ParameterVector("input", 2)
+        self.circut_weights = ParameterVector("weight", 4)
+
+        # define and set circut
+        self.qc = QuantumCircuit(2)
+        self.build_circut()
         
         # set inputs and weights
         self.input = data.input
-        self.weight_dim = 4
         self.weights = algorithm_globals.random.random(self.weight_dim)
 
-        self.qnn_sampler = SamplerQNN(circuit=self.qc.qc, input_params=self.qc.input, weight_params=self.qc.weights)
+        self.qnn_sampler = SamplerQNN(circuit=self.qc, input_params=self.circut_input, weight_params=self.circut_weights)
 
     def forward(self):
-        self.qnn_sampler_forward = self.qnn_sampler.forward(self.input, self.weights)
+        self.forward_out = self.qnn_sampler.forward(self.input, self.weights)
 
     def backward(self):
-        self.qnn_sample_input_grad, self.qnn_sampler_weight_grad = self.qnn_sampler.backward(self.input, self.weights)
+        self.input_grad, self.weight_grad = self.qnn_sampler.backward(self.input, self.weights)
+
+    def build_circut(self):
+        self.qc.ry(self.circut_input[0], 0)
+        self.qc.ry(self.circut_input[1], 1)
+        self.qc.cx(0, 1)
+        self.qc.ry(self.circut_weights[0], 0)
+        self.qc.ry(self.circut_weights[1], 1)
+        self.qc.cx(0, 1)
+        self.qc.ry(self.circut_weights[2], 0)
+        self.qc.ry(self.circut_weights[3], 1)
 
 
 class Data:
@@ -35,28 +50,16 @@ class Data:
         self.input_dim = 2
         self.input = algorithm_globals.random.random(self.input_dim)
 
-
-class Circuit:
-    def __init__(self) -> None:
-        self.qc = QuantumCircuit(2)
-        self.input = ParameterVector("input", 2)
-        self.weights = ParameterVector("weight", 4)
-        self.qc.ry(self.input[0], 0)
-        self.qc.ry(self.input[1], 1)
-        self.qc.cx(0, 1)
-        self.qc.ry(self.weights[0], 0)
-        self.qc.ry(self.weights[1], 1)
-        self.qc.cx(0, 1)
-        self.qc.ry(self.weights[2], 0)
-        self.qc.ry(self.weights[3], 1)
-
-data = Data()
-# define and set qc
-qc = Circuit()
-qnn = QNN(data, qc)
+# init data class for qnn
+rand_data = Data()
+# init qnn class with data
+qnn = QNN(data=rand_data)
+# run non-batched forward pass
 qnn.forward()
-print(qnn.qnn_sampler_forward, qnn.qnn_sampler_forward.shape)
-
+print(qnn.forward_out, qnn.forward_out.shape)
+# run backward pass
+qnn.backward()
+print(qnn.weight_grad, qnn.weight_grad.shape)
 
 # This code is part of Qiskit.
 #
