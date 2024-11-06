@@ -11,26 +11,31 @@ from qiskit_machine_learning.neural_networks import SamplerQNN
 class QNN:
     def __init__(self, data=None) -> None:
         self.data = data
-        # set inputs and weights
-        self.inputs = data.inputs
-        self.weights = data.weights
-
-        # init quantum circut
+        # define and set circut
         self.qc = QuantumCircuit(2)
+        self.circut_input = ParameterVector("input", 2)
+        self.circut_weights = ParameterVector("weight", 4)
         self.set_circut()
+        # set inputs and weights
+        self.input = data.input
+        self.kernel_dim = 4
+        self.weights = algorithm_globals.random.random(self.kernel_dim)
 
-        sampler_qnn = SamplerQNN(circuit=self.qc, input_params=self.inputs, weight_params=self.weights)
+        self.qnn_sampler = SamplerQNN(circuit=self.qc, input_params=self.circut_input, weight_params=self.circut_weights)
 
+    def forward(self):
+        self.qnn_sampler_forward = self.qnn_sampler.forward(self.input, self.weights)
+        print(self.qnn_sampler_forward, self.qnn_sampler_forward.shape)
 
     def set_circut(self):
-        self.qc.ry(self.inputs[0], 0)
-        self.qc.ry(self.inputs[1], 1)
+        self.qc.ry(self.circut_input[0], 0)
+        self.qc.ry(self.circut_input[1], 1)
         self.qc.cx(0, 1)
-        self.qc.ry(self.weights[0], 0)
-        self.qc.ry(self.weights[1], 1)
+        self.qc.ry(self.circut_weights[0], 0)
+        self.qc.ry(self.circut_weights[1], 1)
         self.qc.cx(0, 1)
-        self.qc.ry(self.weights[2], 0)
-        self.qc.ry(self.weights[3], 1)
+        self.qc.ry(self.circut_weights[2], 0)
+        self.qc.ry(self.circut_weights[3], 1)
 
 
 class Data:
@@ -38,12 +43,12 @@ class Data:
         # initialize seed for reproducibility
         algorithm_globals.random_seed = 12345
 
-        self.inputs = ParameterVector("input", 2)
-        self.weights = ParameterVector("weight", 4)
-
+        self.input_dim = 2
+        self.input = algorithm_globals.random.random(self.input_dim)
 
 data = Data()
 qnn = QNN(data=data)
+qnn.forward()
 
 # This code is part of Qiskit.
 #
